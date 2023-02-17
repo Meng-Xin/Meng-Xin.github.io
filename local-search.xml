@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>Linux 下安装Golang环境</title>
+    <link href="/2023/02/17/Linux-%E4%B8%8B%E5%AE%89%E8%A3%85Golang%E7%8E%AF%E5%A2%83/"/>
+    <url>/2023/02/17/Linux-%E4%B8%8B%E5%AE%89%E8%A3%85Golang%E7%8E%AF%E5%A2%83/</url>
+    
+    <content type="html"><![CDATA[<h2 id="环境安装前提"><a href="#环境安装前提" class="headerlink" title="环境安装前提"></a>环境安装前提</h2><p>  1.查看安装物理机信息<br>  <figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs autoit">[root<span class="hljs-symbol">@VM</span><span class="hljs-number">-16</span><span class="hljs-number">-14</span>-centos ~]<span class="hljs-meta"># uname -m</span><br>x86_64<br></code></pre></td></tr></table></figure><br>  2.根据输出信息去Golang官网下载对应安装包<br>  [Golang官网](<a href="https://golang.google.cn/dl/">Downloads - The Go Programming Language (google.cn)</a>)<br>  3.使用远程拷贝命令</p>  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs elixir">scp go1.<span class="hljs-number">20</span>.linux-amd64.tar.gz remote_username<span class="hljs-variable">@remote_ip</span><span class="hljs-symbol">:remote_file</span> <br><span class="hljs-comment">#例如我的</span><br>scp go1.<span class="hljs-number">20</span>.linux-amd64.tar.gz root<span class="hljs-variable">@192</span>.<span class="hljs-number">168.247</span>.<span class="hljs-number">1</span><span class="hljs-symbol">:/root</span><br></code></pre></td></tr></table></figure><p> 4.解压文件，并配置环境变量。<br>  <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment">#解压到  /usr/local</span><br>tar -C /usr/local -zxvf  go1.20.linux-amd64.tar.gz<br><span class="hljs-comment">#配置环境变量</span><br>sudo vim ~/.bashrc#在尾部写入<br><span class="hljs-built_in">export</span> <span class="hljs-attribute">GOROOT</span>=/usr/local/go<br><span class="hljs-built_in">export</span> <span class="hljs-attribute">PATH</span>=<span class="hljs-variable">$PATH</span>:$GOROOT/bin<br><span class="hljs-built_in">export</span> <span class="hljs-attribute">GOPATH</span>=/home/hesunfly/code/go<br><span class="hljs-comment">#保存退出</span><br>:wq<br></code></pre></td></tr></table></figure><br>  5.刷新配置<br><code>source ~/.bashrc</code><br>  6.测试使用<br>  <code>go env 正常输出即可</code><br>  7.配置七牛云代理</p>  <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">export</span> <span class="hljs-attribute">GO111MODULE</span>=on<br><span class="hljs-built_in">export</span> <span class="hljs-attribute">GOPROXY</span>=https://goproxy.cn<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>Golang Linux</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Hello World</title>
     <link href="/2023/02/16/hello-world/"/>
     <url>/2023/02/16/hello-world/</url>
