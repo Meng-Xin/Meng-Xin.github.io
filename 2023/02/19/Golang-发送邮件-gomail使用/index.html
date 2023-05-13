@@ -7,33 +7,33 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
-  <link rel="icon" href="/img/fluid.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/Meng-Xin/img/web.png">
+  <link rel="icon" href="/Meng-Xin/img/web.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="John Doe">
+  <meta name="author" content="Meng-Xin">
   <meta name="keywords" content="">
   
     <meta name="description" content="环境安装 这里我使用的是 “gopkg.in&#x2F;gomail.v2”  1go get gopkg.in&#x2F;gomail.v2   开启 POP3&#x2F;IMAP&#x2F;SMTP&#x2F;Exchange&#x2F;CardDAV 服务 授权码 🦊：https:&#x2F;&#x2F;wx.mail.qq.com&#x2F;account  方法封装123456789101112131415161718192">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang 发送邮件 gomail使用">
-<meta property="og:url" content="http://example.com/2023/02/19/Golang-%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6-gomail%E4%BD%BF%E7%94%A8/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="https://github.com/Meng-Xin/2023/02/19/Golang-%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6-gomail%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="Gopher充电站">
 <meta property="og:description" content="环境安装 这里我使用的是 “gopkg.in&#x2F;gomail.v2”  1go get gopkg.in&#x2F;gomail.v2   开启 POP3&#x2F;IMAP&#x2F;SMTP&#x2F;Exchange&#x2F;CardDAV 服务 授权码 🦊：https:&#x2F;&#x2F;wx.mail.qq.com&#x2F;account  方法封装123456789101112131415161718192">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://lwh-zfile.oss-cn-shanghai.aliyuncs.com/Blog/image-20230219164859201.png?Expires=1676797189&OSSAccessKeyId=TMP.3KecoKYsTmoCwo9ChYAQRibrWWFYZZ1CHpXJGuAjrxSvckEyK1LUfNa6amDNAnMH6cCko4GbQ1iqAoZTzgyXbQXg2SA4eo&Signature=L17ASqyMRPBwHjCfOsOYf+Mqt9Y=">
 <meta property="article:published_time" content="2023-02-19T08:32:44.000Z">
 <meta property="article:modified_time" content="2023-02-19T08:56:48.827Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="Meng-Xin">
 <meta property="article:tag" content="Golang 邮件">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://lwh-zfile.oss-cn-shanghai.aliyuncs.com/Blog/image-20230219164859201.png?Expires=1676797189&OSSAccessKeyId=TMP.3KecoKYsTmoCwo9ChYAQRibrWWFYZZ1CHpXJGuAjrxSvckEyK1LUfNa6amDNAnMH6cCko4GbQ1iqAoZTzgyXbQXg2SA4eo&Signature=L17ASqyMRPBwHjCfOsOYf+Mqt9Y=">
   
   
   
-  <title>Golang 发送邮件 gomail使用 - Hexo</title>
+  <title>Golang 发送邮件 gomail使用 - Gopher充电站</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -57,12 +57,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link  rel="stylesheet" href="/Meng-Xin/css/main.css" />
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/Meng-Xin/css/highlight.css" />
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/Meng-Xin/css/highlight-dark.css" />
   
 
 
@@ -71,15 +71,15 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"github.com","root":"/Meng-Xin/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/Meng-Xin/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script  src="/Meng-Xin/js/utils.js" ></script>
+  <script  src="/Meng-Xin/js/color-schema.js" ></script>
   
 
 
@@ -96,7 +96,7 @@
 <div class="header-inner" style="height: 70vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
-    <a class="navbar-brand" href="/">
+    <a class="navbar-brand" href="/Meng-Xin/">
       <strong>Meng-Xin</strong>
     </a>
 
@@ -115,7 +115,7 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/">
+              <a class="nav-link" href="/Meng-Xin/">
                 <i class="iconfont icon-home-fill"></i>
                 <span>首页</span>
               </a>
@@ -127,7 +127,7 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/archives/">
+              <a class="nav-link" href="/Meng-Xin/archives/">
                 <i class="iconfont icon-archive-fill"></i>
                 <span>归档</span>
               </a>
@@ -139,7 +139,7 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/categories/">
+              <a class="nav-link" href="/Meng-Xin/categories/">
                 <i class="iconfont icon-category-fill"></i>
                 <span>分类</span>
               </a>
@@ -151,7 +151,7 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/tags/">
+              <a class="nav-link" href="/Meng-Xin/tags/">
                 <i class="iconfont icon-tags-fill"></i>
                 <span>标签</span>
               </a>
@@ -163,7 +163,7 @@
           
           
             <li class="nav-item">
-              <a class="nav-link" href="/about/">
+              <a class="nav-link" href="/Meng-Xin/about/">
                 <i class="iconfont icon-user-fill"></i>
                 <span>关于</span>
               </a>
@@ -193,7 +193,7 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/img/Konachan.jpg') no-repeat center center; background-size: cover;">
+     style="background: url('/Meng-Xin/img/Konachan.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -293,7 +293,7 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	<span class="hljs-comment">// 邮件接收方</span><br>	mailTo := []<span class="hljs-type">string</span>&#123;<br>		<span class="hljs-comment">//可以是多个接收人</span><br>		<span class="hljs-string">&quot;toObject@qq.com&quot;</span>,<br>	&#125;<br><br>	subject := <span class="hljs-string">&quot;Hello World!&quot;</span>    <span class="hljs-comment">// 邮件主题</span><br>	body := static.ParseString() <span class="hljs-comment">// 邮件正文</span><br><br>	err := SendMail(mailTo, subject, body)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		fmt.Println(<span class="hljs-string">&quot;Send fail! - &quot;</span>, err)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	fmt.Println(<span class="hljs-string">&quot;Send successfully!&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h2 id="小技巧-发送HTML格式的邮件内容"><a href="#小技巧-发送HTML格式的邮件内容" class="headerlink" title="小技巧-发送HTML格式的邮件内容"></a>小技巧-发送HTML格式的邮件内容</h2><blockquote>
-<p>🦊：很多需要验证码操作的流程，我们接受邮件经常可以看到一个 小巧精致的卡片模板。这个就是封装HTML后的格式。<img src="https://lwh-zfile.oss-cn-shanghai.aliyuncs.com/Blog/image-20230219164859201.png?Expires=1676797189&OSSAccessKeyId=TMP.3KecoKYsTmoCwo9ChYAQRibrWWFYZZ1CHpXJGuAjrxSvckEyK1LUfNa6amDNAnMH6cCko4GbQ1iqAoZTzgyXbQXg2SA4eo&Signature=L17ASqyMRPBwHjCfOsOYf+Mqt9Y=" srcset="/img/loading.gif" lazyload></p>
+<p>🦊：很多需要验证码操作的流程，我们接受邮件经常可以看到一个 小巧精致的卡片模板。这个就是封装HTML后的格式。<img src="https://lwh-zfile.oss-cn-shanghai.aliyuncs.com/Blog/image-20230219164859201.png?Expires=1676797189&OSSAccessKeyId=TMP.3KecoKYsTmoCwo9ChYAQRibrWWFYZZ1CHpXJGuAjrxSvckEyK1LUfNa6amDNAnMH6cCko4GbQ1iqAoZTzgyXbQXg2SA4eo&Signature=L17ASqyMRPBwHjCfOsOYf+Mqt9Y=" srcset="/Meng-Xin/img/loading.gif" lazyload></p>
 </blockquote>
 <p>1.创建样式模板</p>
 <blockquote>
@@ -313,7 +313,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Golang-%E9%82%AE%E4%BB%B6/">#Golang 邮件</a>
+        <a href="/Meng-Xin/tags/Golang-%E9%82%AE%E4%BB%B6/">#Golang 邮件</a>
       
     </div>
   
@@ -326,13 +326,13 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>Golang 发送邮件 gomail使用</div>
-      <div>http://example.com/2023/02/19/Golang-发送邮件-gomail使用/</div>
+      <div>https://github.com/Meng-Xin/2023/02/19/Golang-发送邮件-gomail使用/</div>
     </div>
     <div class="license-meta">
       
         <div class="license-meta-item">
           <div>作者</div>
-          <div>John Doe</div>
+          <div>Meng-Xin</div>
         </div>
       
       
@@ -370,11 +370,17 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/Meng-Xin/2023/05/13/Golang-%E5%8F%8CToken%E8%AE%A4%E8%AF%81/" title="Golang - 双Token认证">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Golang - 双Token认证</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/02/17/go-swagger%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="go-swagger安装与使用">
+                      <a href="/Meng-Xin/2023/02/17/go-swagger%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="go-swagger安装与使用">
                         <span class="hidden-mobile">go-swagger安装与使用</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
@@ -504,8 +510,8 @@
 
 <script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
 <script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script  src="/Meng-Xin/js/events.js" ></script>
+<script  src="/Meng-Xin/js/plugins.js" ></script>
 
 
   <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
@@ -527,7 +533,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script  src="/Meng-Xin/js/img-lazyload.js" ></script>
   
 
 
@@ -626,7 +632,7 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script  src="/Meng-Xin/js/local-search.js" ></script>
 
 
 
@@ -634,7 +640,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script  src="/Meng-Xin/js/boot.js" ></script>
 
 
   
