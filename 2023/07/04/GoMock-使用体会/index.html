@@ -1,0 +1,711 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/web.png">
+  <link rel="icon" href="/img/web.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Meng-Xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言本篇文章分享，分享关于gomock的使用技巧和心得。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GoMock 使用体会">
+<meta property="og:url" content="http://yoursite.com/2023/07/04/GoMock-%E4%BD%BF%E7%94%A8%E4%BD%93%E4%BC%9A/index.html">
+<meta property="og:site_name" content="Gopher充电站">
+<meta property="og:description" content="前言本篇文章分享，分享关于gomock的使用技巧和心得。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-03T23:48:22.000Z">
+<meta property="article:modified_time" content="2023-07-04T01:14:11.154Z">
+<meta property="article:author" content="Meng-Xin">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="GoMock">
+<meta property="article:tag" content="单元测试">
+<meta property="article:tag" content="打桩测试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>GoMock 使用体会 - Gopher充电站</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"yoursite.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Meng-Xin</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/Konachan.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="GoMock 使用体会"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-04 07:48" pubdate>
+          2023年7月4日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          42 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">GoMock 使用体会</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本篇文章分享，分享关于gomock的使用技巧和心得。</p>
+<span id="more"></span>
+
+<h1 id="为什么要进行单元测试？"><a href="#为什么要进行单元测试？" class="headerlink" title="为什么要进行单元测试？"></a>为什么要进行单元测试？</h1><blockquote>
+<p>:fox_face: 我们在日常软件开发过程中总会无意间创造一些神奇的BUG，而这些BUG的产生往往在初期编写代码的时候是看不出来的！为了尽量避免这类问题，我认为编写测试单元能够减少这类问题的出现。</p>
+<p>:fox_face: gomock 能在测试中让你避开如需要 *db 等需要初始化操作,减少大量准备工作.</p>
+</blockquote>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ol>
+<li>提高代码质量：单元测试可以及早发现和修复代码中的错误，从而减少整体测试的时间和成本，提高代码的质量和稳定性。</li>
+<li>减少集成错误：通过单元测试，可以将各个模块分开测试，减少模块之间的依赖性，避免在集成时出现错误。</li>
+<li>提高代码可维护性：单元测试可以帮助开发人员快速定位和修复代码中的问题，同时也可以提供代码的文档和示例。</li>
+<li>增加代码信心：通过编写单元测试，可以增加开发人员对代码的信心，因为他们知道他们的代码在各种情况下都能正常工作。</li>
+<li>减少回归错误：单元测试可以在代码更改后自动运行，确保新添加的功能不会影响现有功能，从而减少回归错误。</li>
+<li>提高可测试性：单元测试可以帮助开发人员编写更易于测试的代码，提高代码的可测试性。</li>
+<li>增加代码覆盖率：通过单元测试，可以覆盖代码的各种情况，包括边界条件和异常处理，从而提高代码的覆盖率。</li>
+</ol>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ol>
+<li>需要额外的工作量：编写单元测试需要额外的工作量，这会增加开发成本和时间。</li>
+<li>测试环境与实际环境存在差异：单元测试通常在测试环境中进行，与实际环境可能存在差异，这可能导致测试结果不准确或不可靠。</li>
+<li>覆盖范围有限：单元测试只能测试代码的表面问题，无法覆盖所有可能的情况，因此可能存在一些潜在的问题。</li>
+<li>测试的稳定性和可靠性要求高：单元测试需要保证测试的稳定性和可靠性，否则测试结果可能会误导开发人员，导致错误的决策。</li>
+<li>需要具备一定的测试技巧：编写单元测试往往需要有效的用例覆盖如：边界覆盖、异常覆盖等。</li>
+</ol>
+<h2 id="如何抉择"><a href="#如何抉择" class="headerlink" title="如何抉择"></a>如何抉择</h2><blockquote>
+<p>其实对比上面的优缺点之后，最大的问题应该在需要额外的工作量上面，因为在严格意义的软件工程生命周期中，编码和单元测试 (20%-25% )综合测试占比更是达到(30%-40%)左右，但是我们所处的工作环境大部分都是敏捷开发，小公司往往更是测试部门都没有，所给的时间也是非常紧迫，这其实对整个软件的生态都不友好，因为后续的BUG维护会占用更长时间。</p>
+<p>总的来说：</p>
+<p>​	如果部门预留时间充分并且有绩效反馈的编写单元测试再好不过。</p>
+<p>​	如果部门着急赶项目加班连轴转的这种还是老老实实写功能吧，不然功能延期会对后面的计划造成更大的影响。</p>
+</blockquote>
+<h1 id="如何使用Gomock"><a href="#如何使用Gomock" class="headerlink" title="如何使用Gomock"></a>如何使用Gomock</h1><blockquote>
+<p>gomock 主要由两部分组成,一个是测试库,一个是mockgen.我们需要先对待测代码使用mockgen生成待测文件,再调用gomock对待测文件进行测试.</p>
+</blockquote>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 测试库</span><br><span class="hljs-keyword">go</span> get github.com/golang/mock/gomock<br><span class="hljs-comment">// mock代码生成器</span><br><span class="hljs-keyword">go</span> get github.com/golang/mock/mockgen<br></code></pre></td></tr></table></figure>
+
+<h2 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">目录结构</span><br>--- repository<br>	--- dao<br>		user.go	// 用户操作Mysql<br>	user.go	// 例:Repository暴露接口(待测文件)<br>--- service<br>	user.go		// 例:用户Service层操作<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>repository&#x2F;dao&#x2F;user.go</strong></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">type</span> UserDao <span class="hljs-keyword">interface</span>&#123;<br>    <span class="hljs-comment">// 例如我们定义一个 Insert 新增操作</span><br>   	Insert(ctx context.Context, user model.User) (<span class="hljs-type">uint64</span>, <span class="hljs-type">error</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewUserDao</span><span class="hljs-params">(db *gorm.DB)</span></span> UserDao &#123;<br>	<span class="hljs-keyword">return</span> &amp;userGORM&#123;db: db&#125;<br>&#125;<br><br><span class="hljs-keyword">type</span> userGORM <span class="hljs-keyword">struct</span> &#123;<br>	db *gorm.DB<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(u *userGORM)</span></span> Insert(ctx context.Context, user model.User) (<span class="hljs-type">uint64</span>, <span class="hljs-type">error</span>) &#123;<br>	err := u.db.WithContext(ctx).Create(&amp;user).Error<br>	<span class="hljs-keyword">return</span> user.ID, err<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>repository&#x2F;user.go</strong></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">// 待测文件</span><br><span class="hljs-keyword">type</span> UserRepo <span class="hljs-keyword">interface</span> &#123;<br>    <span class="hljs-comment">// Create 注册</span><br>	Create(ctx context.Context, user domain.User) (<span class="hljs-type">uint64</span>, <span class="hljs-type">error</span>)<br>&#125;<br><br><span class="hljs-keyword">type</span> userRepo <span class="hljs-keyword">struct</span> &#123;<br>	dao   dao.UserDao<br>	cache cache.UserCache<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewUserRepo</span><span class="hljs-params">(dao dao.UserDao, cache cache.UserCache)</span></span> UserRepo &#123;<br>	<span class="hljs-keyword">return</span> &amp;userRepo&#123;dao: dao, cache: cache&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(u *userRepo)</span></span> Create(ctx context.Context, user domain.User) (<span class="hljs-type">uint64</span>, <span class="hljs-type">error</span>) &#123;<br>	now := utils.GetTimeMilli()<br>	<span class="hljs-comment">// 创建用户</span><br>	<span class="hljs-keyword">if</span> user.ID != <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>, errors.New(<span class="hljs-string">&quot;用户已存在无法创建&quot;</span>)<br>	&#125;<br>	entity := model.User&#123;<br>		ID:       user.ID,<br>		UserName: user.UserName,<br>		Password: user.Password,<br>		NickName: user.NickName,<br>		Email:    user.Email,<br>		Phone:    user.Phone,<br>		Avatar:   user.Avatar,<br>		Ctime:    now,<br>		Utime:    now,<br>	&#125;<br>	<span class="hljs-keyword">return</span> u.dao.Insert(ctx, entity)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>service&#x2F;user.go</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> UserService <span class="hljs-keyword">interface</span> &#123;<br>	<span class="hljs-comment">// Register 注册</span><br>	Register(ctx context.Context, user domain.User) (domain.User, <span class="hljs-type">error</span>)<br>&#125;<br><br><span class="hljs-keyword">type</span> userService <span class="hljs-keyword">struct</span> &#123;<br>	repo repository.UserRepo<br>&#125;<br><br><span class="hljs-comment">// NewUserService 注意这里的 入参是repo 实际测试过程中我们需要大量的初始化工作来拿到 repo ,但是我们用 gockgen 生成待测文件，因此可以通过生成的文件接口拿到该入参。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewUserService</span><span class="hljs-params">(repo repository.UserRepo)</span></span> UserService &#123;<br>	<span class="hljs-keyword">return</span> &amp;userService&#123;repo: repo&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(u *userService)</span></span> Register(ctx context.Context, user domain.User) (domain.User, <span class="hljs-type">error</span>) &#123;<br>	<span class="hljs-comment">// 账户已存在校验</span><br><br>	<span class="hljs-comment">// 昵称重复校验</span><br><br>	<span class="hljs-comment">// 对用户密码加盐Hash</span><br>	hashPwd := utils.MD5V(user.Password, <span class="hljs-string">&quot;salt&quot;</span>, <span class="hljs-number">10</span>)<br>	user.Password = hashPwd<br>	<span class="hljs-comment">// 创建用户</span><br>	uid, err := u.repo.Create(ctx, user)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> domain.User&#123;&#125;, err<br>	&#125;<br>	user.ID = uid<br>	<span class="hljs-keyword">return</span> user, <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<ol>
+<li>首先使用<code>mockgen</code>生成待测文件</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 1.我们先切换到 /repository/</span><br><span class="hljs-comment">// source 指定源文件  destination 指定生成文件 package 指定生成文件包名称</span><br>mockgen -source=user.<span class="hljs-keyword">go</span> -destination=mock_user.repo.<span class="hljs-keyword">go</span> -<span class="hljs-keyword">package</span>=repository<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>创建测试文件<code>user_test.go</code></li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 编写测试用例</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestUserService</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    <span class="hljs-comment">// 这里的hashPWd 是在Service 层做的。</span><br>	hashPwd := utils.MD5V(<span class="hljs-string">&quot;yyz&quot;</span>, <span class="hljs-string">&quot;salt&quot;</span>, <span class="hljs-number">10</span>)<br>	testCases := []<span class="hljs-keyword">struct</span> &#123;<br>		name      <span class="hljs-type">string</span><br>		mock      <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(ctrl *gomock.Controller)</span></span> repository.UserRepo<br>		inputUser domain.User<br><br>		wantUser domain.User<br>		wantErr  <span class="hljs-type">error</span><br>	&#125;&#123;<br>		&#123;<br>			name:      <span class="hljs-string">&quot;注册成功案例&quot;</span>,<br>			inputUser: domain.User&#123;UserName: <span class="hljs-string">&quot;xxn&quot;</span>, Password: <span class="hljs-string">&quot;yyz&quot;</span>, NickName: <span class="hljs-string">&quot;小仙女郁郁症&quot;</span>&#125;,<br>			mock: <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(ctrl *gomock.Controller)</span></span> repository.UserRepo &#123;<br>                <span class="hljs-comment">// 这里使用生成的测试文件接口直接获得 repo 返回值，可作为Newservice的入参使用。</span><br>				repo := repository.NewMockUserRepo(ctrl)<br>				repo.EXPECT().Create(gomock.Any(), domain.User&#123;UserName: <span class="hljs-string">&quot;xxn&quot;</span>, Password: hashPwd, NickName: <span class="hljs-string">&quot;小仙女郁郁症&quot;</span>&#125;).Return(<span class="hljs-type">uint64</span>(<span class="hljs-number">1</span>), <span class="hljs-literal">nil</span>)<br>				<span class="hljs-keyword">return</span> repo<br>			&#125;,<br><br>			wantUser: domain.User&#123;ID: <span class="hljs-number">1</span>, UserName: <span class="hljs-string">&quot;xxn&quot;</span>, Password: hashPwd, NickName: <span class="hljs-string">&quot;小仙女郁郁症&quot;</span>&#125;,<br>		&#125;,<br>	&#125;<br><br>	<span class="hljs-keyword">for</span> _, tc := <span class="hljs-keyword">range</span> testCases &#123;<br>		t.Run(tc.name, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>			ctrl := gomock.NewController(t)<br>			<span class="hljs-keyword">defer</span> ctrl.Finish()<br>			<span class="hljs-comment">// 通过Mock 获得Repo构造对象</span><br>			repo := tc.mock(ctrl)<br>			svc := NewUserService(repo)<br>			<span class="hljs-comment">// 下边进行 Service层接口调试 </span><br>			user, err := svc.Register(context.Background(), tc.inputUser)<br>			<span class="hljs-comment">// 错误一致</span><br>			assert.Equal(t, tc.wantErr, err)<br>			<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-keyword">return</span><br>			&#125;<br>			<span class="hljs-comment">// 数据一致</span><br>			assert.Equal(t, tc.wantUser, user)<br>		&#125;)<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote>
+<p>其实在使用 gomock 的时候我们需要清晰 那一层是需要待测的? 为什么这一层需要 gomock 的引入(因为不需要gomock我们也能测试),我们在上述的例子中对repository层user.go进行 mockgen生成待测文件就是为了绕开 dao操作中需要传入的GormDB,不然仅仅因为测试就需要大量的初始化工作这是不合理的.而这也是使用gomock的便利之处.</p>
+<p>当然gomock还有更多的功能等待大家挖掘,以上是我的使用心得体会.</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+        <a href="/tags/GoMock/">#GoMock</a>
+      
+        <a href="/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">#单元测试</a>
+      
+        <a href="/tags/%E6%89%93%E6%A1%A9%E6%B5%8B%E8%AF%95/">#打桩测试</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>GoMock 使用体会</div>
+      <div>http://yoursite.com/2023/07/04/GoMock-使用体会/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Meng-Xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/13/Golang-%E5%8F%8CToken%E8%AE%A4%E8%AF%81/" title="Golang - 双Token认证">
+                        <span class="hidden-mobile">Golang - 双Token认证</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
