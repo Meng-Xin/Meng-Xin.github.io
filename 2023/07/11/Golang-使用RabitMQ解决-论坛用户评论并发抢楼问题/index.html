@@ -1,0 +1,648 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/web.png">
+  <link rel="icon" href="/img/web.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Meng-Xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言:本篇文章分享如何在用户评论高并发数据写入的情况下通过使用消息队列来保证评论楼层的原子性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用RabitMQ解决 论坛用户评论并发抢楼问题">
+<meta property="og:url" content="http://yoursite.com/2023/07/11/Golang-%E4%BD%BF%E7%94%A8RabitMQ%E8%A7%A3%E5%86%B3-%E8%AE%BA%E5%9D%9B%E7%94%A8%E6%88%B7%E8%AF%84%E8%AE%BA%E5%B9%B6%E5%8F%91%E6%8A%A2%E6%A5%BC%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="Gopher充电站">
+<meta property="og:description" content="前言:本篇文章分享如何在用户评论高并发数据写入的情况下通过使用消息队列来保证评论楼层的原子性。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-11T00:55:55.000Z">
+<meta property="article:modified_time" content="2023-07-12T11:45:15.160Z">
+<meta property="article:author" content="Meng-Xin">
+<meta property="article:tag" content="Golang | amqp-go | RabbitMQ">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>使用RabitMQ解决 论坛用户评论并发抢楼问题 - Gopher充电站</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"yoursite.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Meng-Xin</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/Konachan.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="使用RabitMQ解决 论坛用户评论并发抢楼问题"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-11 08:55" pubdate>
+          2023年7月11日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          50 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">使用RabitMQ解决 论坛用户评论并发抢楼问题</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言:"></a>前言:</h1><p>本篇文章分享如何在用户评论高并发数据写入的情况下通过使用消息队列来保证评论楼层的原子性。</p>
+<span id="more"></span>
+
+<h1 id="问题引入：为何使用消息队列？"><a href="#问题引入：为何使用消息队列？" class="headerlink" title="问题引入：为何使用消息队列？"></a>问题引入：为何使用消息队列？</h1><blockquote>
+<p>在我遇到的场景中是一个关于论坛在短时间内用户对同一个帖子进行评论遇到的并发楼层抢占问题，如果这里不做任何限制那么在同一时刻多个用户共同对帖子留言就会导致数据表Floor存储的数据不准确，进而导致原子性失效，而解决这个办法有三种选择：1.加锁控制、2.开始事务、3.使用消息队列。</p>
+</blockquote>
+<h2 id="1-加锁控制"><a href="#1-加锁控制" class="headerlink" title="1.加锁控制"></a>1.加锁控制</h2><p>使用互斥锁是解决并发问题的常用手段，但是相对来说，我们想要完美的解决问题 需要对 锁的粒度、锁的时机、以及放锁的时机。把握的非常精妙，大多数情况下复杂的业务场景会导致业务代码的层级较深，而互斥锁穿插在这种复杂的层级关系中一不留神就会导致诸如：琐失效、死锁……而且业务中引入了锁之后也会对我们的QPS造成影响。</p>
+<h2 id="2-开启事务"><a href="#2-开启事务" class="headerlink" title="2. 开启事务"></a>2. 开启事务</h2><p>使用Gorm 事务也能够保证数据的原子性，这个相对来说也是较为方便和容易的，但是在开启事务时我们应该考虑如何简化dao操作尽量缩小粒度，让事务内的过程尽量简化但又能达到效果即可。</p>
+<h2 id="3-使用消息队列"><a href="#3-使用消息队列" class="headerlink" title="3. 使用消息队列"></a>3. 使用消息队列</h2><p>它的优点是解耦、高可用、高并发；缺点是存在消息丢失、消息重复处理等问题，且实现较为复杂，需要考虑多种因素。这里使用RabbitMQ (如何保证消息队列消息不丢失这里不做说明)</p>
+<h1 id="业务代码分析"><a href="#业务代码分析" class="headerlink" title="业务代码分析"></a>业务代码分析</h1><h2 id="数据表"><a href="#数据表" class="headerlink" title="数据表"></a>数据表</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> model<br><br><span class="hljs-comment">// Comment 评论表</span><br><span class="hljs-keyword">type</span> Comment <span class="hljs-keyword">struct</span> &#123;<br>	ID        <span class="hljs-type">uint64</span> <span class="hljs-string">`gorm:&quot;primaryKey;comment:评论ID&quot;`</span><br>	Content   <span class="hljs-type">string</span> <span class="hljs-string">`gorm:&quot;type:longtext;comment:评论内容&quot;`</span><br>	UserID    <span class="hljs-type">uint64</span> <span class="hljs-string">`gorm:&quot;index;not null;comment:评论用户ID&quot;`</span><br>	ArticleID <span class="hljs-type">uint64</span> <span class="hljs-string">`gorm:&quot;index;not null;comment:文章ID&quot;`</span><br>	ParentID  <span class="hljs-type">uint64</span> <span class="hljs-string">`gorm:&quot;index;not null;comment:父级评论ID&quot;`</span><br>	Floor     <span class="hljs-type">uint32</span> <span class="hljs-string">`gorm:&quot;index;not null;comment:评论楼层&quot;`</span><br>	State     <span class="hljs-type">uint8</span>  <span class="hljs-string">`gorm:&quot;comment:该评论状态&quot;`</span><br><br>	Ctime <span class="hljs-type">int64</span> <span class="hljs-comment">// 创建时间，毫秒作为单位</span><br>	Utime <span class="hljs-type">int64</span> <span class="hljs-comment">// 更新时间，毫秒作为单位</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="业务逻辑部分"><a href="#业务逻辑部分" class="headerlink" title="业务逻辑部分"></a>业务逻辑部分</h2><p><strong>daomain&#x2F;comment.go</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Comment <span class="hljs-keyword">struct</span> &#123;<br>	ID        <span class="hljs-type">uint64</span> <span class="hljs-comment">// 评论ID</span><br>	Content   <span class="hljs-type">string</span> <span class="hljs-comment">// 评论内容</span><br>	UserID    <span class="hljs-type">uint64</span> <span class="hljs-comment">// 评论用户ID</span><br>	ArticleID <span class="hljs-type">uint64</span> <span class="hljs-comment">// 文章ID</span><br>	ParentID  <span class="hljs-type">uint64</span> <span class="hljs-comment">// 父级评论ID</span><br>	Floor     <span class="hljs-type">uint32</span> <span class="hljs-comment">// 评论楼层</span><br>	State     <span class="hljs-type">uint8</span>  <span class="hljs-comment">// 该评论状态 0:正常，1：删除</span><br><br>	Ctime <span class="hljs-type">int64</span> <span class="hljs-comment">// 创建时间，毫秒作为单位</span><br>	Utime <span class="hljs-type">int64</span> <span class="hljs-comment">// 更新时间，毫秒作为单位</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>dao&#x2F;comment.go</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs go"><br><span class="hljs-keyword">type</span> ArticleDAO <span class="hljs-keyword">interface</span> &#123;<br>	<span class="hljs-comment">// Insert 创建评论</span><br>	Insert(ctx context.Context, comment model.Comment) (<span class="hljs-type">uint64</span>, <span class="hljs-type">error</span>)<br>    <span class="hljs-comment">// GetLatestFloorByArticleID 根据 文章ID 获取评论最新楼层</span><br>	GetLatestFloorByArticleID(ctx context.Context, articleID <span class="hljs-type">uint64</span>) (<span class="hljs-type">uint32</span>, <span class="hljs-type">error</span>)<br>&#125;<br><br><span class="hljs-keyword">type</span> commentGORM <span class="hljs-keyword">struct</span> &#123;<br>	db *gorm.DB<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *commentGORM)</span></span> Insert(ctx context.Context, comment model.Comment) (<span class="hljs-type">uint64</span>, <span class="hljs-type">error</span>) &#123;<br>	err := c.db.WithContext(ctx).Create(&amp;comment).Error<br>	<span class="hljs-keyword">return</span> comment.ID, err<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *commentGORM)</span></span> GetLatestFloorByArticleID(ctx context.Context, articleID <span class="hljs-type">uint64</span>) (<span class="hljs-type">uint32</span>, <span class="hljs-type">error</span>) &#123;<br>	<span class="hljs-keyword">var</span> comment model.Comment<br>	err := c.db.WithContext(ctx).Where(<span class="hljs-string">&quot;article_id=?&quot;</span>, articleID).Last(&amp;comment).Error<br>	<span class="hljs-keyword">return</span> comment.Floor, err<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewCommentDao</span><span class="hljs-params">(db *gorm.DB)</span></span> CommentDao &#123;<br>	<span class="hljs-keyword">return</span> &amp;commentGORM&#123;db: db&#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>cache&#x2F;comment.go</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> CommentCache <span class="hljs-keyword">interface</span> &#123;<br>	ZAdd(ctx context.Context, comment ...domain.Comment) <span class="hljs-type">error</span><br>	ZGet(ctx context.Context, cid <span class="hljs-type">uint64</span>, by domain.RangeBy) ([]domain.Comment, <span class="hljs-type">error</span>)<br>&#125;<br><br><span class="hljs-keyword">type</span> commentRedisCache <span class="hljs-keyword">struct</span> &#123;<br>	client *redis.Client<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *commentRedisCache)</span></span> ZAdd(ctx context.Context, comments ...domain.Comment) <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-keyword">var</span> err <span class="hljs-type">error</span><br>	<span class="hljs-keyword">for</span> i, _ := <span class="hljs-keyword">range</span> comments &#123;<br>		comment := comments[i]<br>		data, err := json.Marshal(comment)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> err<br>		&#125;<br>		<span class="hljs-comment">// 使用 ZSet 存储 某篇文章 的评论</span><br>		_, err = c.client.WithContext(ctx).ZAdd(fmt.Sprintf(<span class="hljs-string">&quot;article_comments_%d&quot;</span>, comment.ArticleID), redis.Z&#123;<br>			Score:  <span class="hljs-type">float64</span>(comment.Floor),<br>			Member: data,<br>		&#125;).Result()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">break</span><br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> err<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *commentRedisCache)</span></span> ZGet(ctx context.Context, articleID <span class="hljs-type">uint64</span>, by domain.RangeBy) ([]domain.Comment, <span class="hljs-type">error</span>) &#123;<br>	<span class="hljs-keyword">var</span> comments []domain.Comment<br>	<span class="hljs-keyword">var</span> result []<span class="hljs-type">string</span><br>	<span class="hljs-keyword">var</span> err <span class="hljs-type">error</span><br>	<span class="hljs-keyword">if</span> by.Order == enum.Positive &#123;<br>		result, err = c.client.WithContext(ctx).ZRange(<br>			fmt.Sprintf(<span class="hljs-string">&quot;article_comments_%d&quot;</span>, articleID), by.Start, by.Stop,<br>		).Result()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> comments, err<br>		&#125;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		result, err = c.client.WithContext(ctx).ZRevRange(<br>			fmt.Sprintf(<span class="hljs-string">&quot;article_comments_%d&quot;</span>, articleID), by.Start, by.Stop,<br>		).Result()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> comments, err<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-keyword">for</span> i, _ := <span class="hljs-keyword">range</span> result &#123;<br>		<span class="hljs-comment">// 获取对应数据</span><br>		data := result[i]<br>		<span class="hljs-comment">// 构建对象</span><br>		entity := domain.Comment&#123;&#125;<br>		err = json.Unmarshal([]<span class="hljs-type">byte</span>(data), &amp;entity)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> comments, err<br>		&#125;<br>		comments = <span class="hljs-built_in">append</span>(comments, entity)<br>	&#125;<br>	<span class="hljs-keyword">return</span> comments, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewCommentRedisCache</span><span class="hljs-params">(client *redis.Client)</span></span> CommentCache &#123;<br>	<span class="hljs-keyword">return</span> &amp;commentRedisCache&#123;client: client&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>repo&#x2F;comment.go</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> CommentRepo <span class="hljs-keyword">interface</span> &#123;<br>	<span class="hljs-comment">// CreateAndCached 创建评论,并写入缓存</span><br>	CreateAndCached(ctx context.Context, comment domain.Comment) <span class="hljs-type">error</span><br>	<span class="hljs-comment">// ConsumerMQ</span><br>	ConsumerMQ(ctx context.Context) <span class="hljs-type">error</span><br>&#125;<br><br><span class="hljs-keyword">type</span> commentRepo <span class="hljs-keyword">struct</span> &#123;<br>	dao   dao.CommentDao<br>	cache cache.CommentCache<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *commentRepo)</span></span> CreateAndCached(ctx context.Context, comment domain.Comment) <span class="hljs-type">error</span> &#123;<br>	comment.Ctime = utils.GetTimeMilli()<br>	entity := model.Comment&#123;<br>		Content:   comment.Content,<br>		UserID:    comment.UserID,<br>		ArticleID: comment.ArticleID,<br>		ParentID:  comment.ParentID,<br>		Floor:     comment.Floor,<br>		Ctime:     comment.Ctime,<br>	&#125;<br>	<span class="hljs-comment">// 存入消息队列</span><br>	data, err := json.Marshal(entity)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br>	err = global.RabbitMQ.PublishOnQueue(ctx, data)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> err<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *commentRepo)</span></span> ConsumerMQ(ctx context.Context) <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-comment">// 从消息队列获取</span><br>	msgs, err := global.RabbitMQ.Ch.Consume(global.RabbitMQ.QueueName, <span class="hljs-string">&quot;评论消费&quot;</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">nil</span>)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">error</span> &#123;<br>		<span class="hljs-keyword">for</span> msg := <span class="hljs-keyword">range</span> msgs &#123;<br>			endData := model.Comment&#123;&#125;<br>			err = json.Unmarshal(msg.Body, &amp;endData)<br>			<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-keyword">return</span> err<br>			&#125;<br>			floor, err := c.GetLatestFloor(ctx, endData.ArticleID)<br>			<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &amp;&amp; err != gorm.ErrRecordNotFound &#123;<br>				<span class="hljs-keyword">return</span> err<br>			&#125;<br>			endData.Floor = floor + <span class="hljs-number">1</span><br>			_, err = c.dao.Insert(ctx, endData)<br>			<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-keyword">return</span> err<br>			&#125;<br>			<span class="hljs-comment">// 写入缓存</span><br>			err = c.cache.Set(ctx, domain.Comment(endData))<br>			err = c.cache.ZAdd(ctx, domain.Comment(endData))<br>			<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>				global.Log.Warn(err.Error())<br>			&#125;<br>		&#125;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;()<br>	<span class="hljs-keyword">return</span> err<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewCommentRepo</span><span class="hljs-params">(dao dao.CommentDao, cache cache.CommentCache)</span></span> CommentRepo &#123;<br>	<span class="hljs-keyword">return</span> &amp;commentRepo&#123;dao: dao, cache: cache&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="功能详解："><a href="#功能详解：" class="headerlink" title="功能详解："></a>功能详解：</h2><p>上述代码基本代表了有关评论业务操作的repository层操作，我们从最上层接口开始逐层拆分介绍。</p>
+<ol>
+<li><code>repo/comment.go </code>下的 <code>ConsumerMQ(ctx context.context)</code> 方法在我们路由注册的时候进行依赖注入，使用协程启动评论消费端，等待接收生产者的信号，当用户发表评论的时候就会走 <code>CreateAndCached(ctx,comment)</code> 接口方法将用户的评论信息写入消费队列，经过消费者消费成功后，把本篇文章的评论信息追加到 <code>ZSet</code>中进行评论缓存。</li>
+<li><code>ConsumerMQ</code> 方法中每次从消费队列获取用户评论后对该评论的所属文章进行最新楼层查询，这样保证评论的顺序性，同时也保证了写入数据库的评论楼层数也是具备原子性的。</li>
+<li>在ApiPost 提供的并发测试接口中 并发数 5000* 5 轮的情况下，整体API接口的平均延迟在 300MS左右，可见效果还是非常不错的。</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Golang-amqp-go-RabbitMQ/">#Golang | amqp-go | RabbitMQ</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>使用RabitMQ解决 论坛用户评论并发抢楼问题</div>
+      <div>http://yoursite.com/2023/07/11/Golang-使用RabitMQ解决-论坛用户评论并发抢楼问题/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Meng-Xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/04/GoMock-%E4%BD%BF%E7%94%A8%E4%BD%93%E4%BC%9A/" title="GoMock 使用体会">
+                        <span class="hidden-mobile">GoMock 使用体会</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
