@@ -16,23 +16,19 @@
   <meta name="author" content="Meng-Xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Untitled 		 		 		 		 		 		 		 		 			img { 				border-radius: 10px; 			} 		 	  	  		 		 		 		   		    🍊 		    摇匀 		    再喝 		   		 		 		 			  				 					 						 						保存网页截图">
+    <meta name="description" content="Untitled 		 		 		 		 		 		 		 		 			.mountPart{ 				text-align: center; 				background-color: #313131; 				height: 80%; 				border-radius: 1.6em; 				letter-spacing: 0.5em; 				line-height: 2em;">
 <meta property="og:type" content="website">
 <meta property="og:title" content="page.title">
-<meta property="og:url" content="http://yoursite.com/about/index.html">
+<meta property="og:url" content="http://yoursite.com/about/Personal-page-v2.1%20(1)/pay.html">
 <meta property="og:site_name" content="Gopher充电站">
-<meta property="og:description" content="Untitled 		 		 		 		 		 		 		 		 			img { 				border-radius: 10px; 			} 		 	  	  		 		 		 		   		    🍊 		    摇匀 		    再喝 		   		 		 		 			  				 					 						 						保存网页截图">
+<meta property="og:description" content="Untitled 		 		 		 		 		 		 		 		 			.mountPart{ 				text-align: center; 				background-color: #313131; 				height: 80%; 				border-radius: 1.6em; 				letter-spacing: 0.5em; 				line-height: 2em;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://yoursite.com/about/images/avatar.jpg">
-<meta property="og:image" content="http://yoursite.com/about/img">
-<meta property="og:image" content="http://yoursite.com/about/images/demoQR.png">
-<meta property="og:image" content="http://yoursite.com/about/images/demoQR.png">
-<meta property="og:image" content="https://img.shields.io/badge/Github-Someone-brightgreen.svg">
-<meta property="article:published_time" content="2023-07-31T15:00:32.294Z">
+<meta property="og:image" content="http://yoursite.com/about/Personal-page-v2.1%20(1)/images/avatar.jpg">
+<meta property="article:published_time" content="2023-07-31T14:59:09.986Z">
 <meta property="article:modified_time" content="2021-08-24T14:49:33.000Z">
 <meta property="article:author" content="Meng-Xin">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://yoursite.com/about/images/avatar.jpg">
+<meta name="twitter:image" content="http://yoursite.com/about/Personal-page-v2.1%20(1)/images/avatar.jpg">
   
   
   
@@ -234,74 +230,64 @@
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 		<script src="js/vue.min.js" language="JavaScript"></script>
 		<script src="js/jquery-3.4.1.min.js"></script>
-		<script src="js/html2canvas.min.js" async="async"></script>
+		<script src="js/html2canvas.min.js"></script>
 		<style>
-			img {
-				border-radius: 10px;
+			.mountPart{
+				text-align: center;
+				background-color: #313131;
+				height: 80%;
+				border-radius: 1.6em;
+				letter-spacing: 0.5em;
+				line-height: 2em;
+				padding: 1em;
+				height: 6.5em;
+				opacity: 0.9;
 			}
 		</style>
 	</head>
-
-	<body class="is-preload">
-
+	<body class="is-preload" onload="loaded()">
+		
 		<!-- Loader -->
 		<link rel="stylesheet" href="assets/css/loader.css" />
 		<div class="loader">
-		  <div class="container">
-		    <h1>🍊</h1>
-		    <p>摇匀</p>
-		    <p>再喝</p>
-		  </div>
+			<div class="container">
+			<h1>🍊</h1>
+			<p>摇匀</p>
+			<p>再喝</p>
+			</div>
 		</div>
-		
+
 		<!-- Wrapper -->
 			<div id="wrapper">
 
 				<!-- Main -->
 					<section id="main">
-						<!-- Screenshot Button -->
-						<span style="display: flex; position: fixed; top: 2em; right: 2em; opacity: 0.65; font-size: 0.8em;" v-show="backButton"><button class="button small" @click="screenShot" id="screenshot">保存网页截图</button></span>
-
-						<!-- Welcome Message and Contacts -->
-						<header v-show="Contacts">
+						<span style="display: flex; position: fixed; top: 2em; right: 2em; opacity: 0.65; font-size: 0.8em;"><button class="button small" @click="screenShot" id="screenshot">保存网页截图</button></span>
+						<span style="display: flex; position: fixed; top: 2em; left: 2em; opacity: 0.4;" v-if="backButton"><button class="button small" onclick="toIndex()"><a>&lt;返回</a></button></span>
+						<header>
 							<span class="avatar"><img src="images/avatar.jpg" srcset="/img/loading.gif" lazyload alt="" style="width: 122px; height: 122px;" /></span>
-							<h1>Untitled</h1>
+							<h1>向 Someone 付款</h1>
+							<center class="mountPart" v-if="showAmount">
+								<b><span style="font-size: 3em; color: #25b684;">.</span><span style="font-size: 2.3em; color: #25b684;"></span><span style="color: #fffff8; font-size: 2em;">元</span></b>
+								<p style="color: #cacaca; font-size: 0.9em;">设置的金额</p>
+							</center>
+							<br />
 							<transition-group name="fade">
-								<div v-show="defaults" key="text">
-									<p>Lorem</p>
-									<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore facere accusamus quae nesciunt at fuga dicta vitae quidem reiciendis. Quos blanditiis corporis vel iusto reprehenderit ratione distinctio fugiat quae sed.</p>
-									<button class="button small fit" @click="showAbout" v-bind:disabled="onTransition==1">Click!</button>
-								</div>
-								<div v-for="item in contacts" v-if="item.show" key="item.name" v-html="item.content"></div>
-								<button class="button small" key="button" @click="hideContact(true)" style="opacity: 0.55;" v-show="backButton">返回</button>
+								<div v-html="text" v-show="defaults" key="text"></div>
+								<div v-for="item in method" v-show="item.show" key="item.name" v-html="item.content"></div>
+								<button class="button small" key="button" v-show="buttonShow" @click="hideMethod(true)" style="opacity: 0.55;">返回</button>
 							</transition-group>
 						</header>
 						<hr />
-						<footer v-show="Contacts">
+						<footer>
 							<ul class="icons">
-								<li v-for="item in contacts"><a @click="showContact(item.name)" :class="item.icon"></a></li>
+								<li v-for="item in method"><a @click="showMethod(item.name)" :class="item.icon"></a></li>
 							</ul>
 						</footer>
-
-						<!-- Page container -->
-						<header v-show="info">
-							<transition-group name="fade">
-								<h1 key="title"></h1>
-								<p key="text" v-for="text in texts"></p>
-								<div v-html="html" key="html"></div>
-								<img v-bind:src="img" srcset="/img/loading.gif" lazyload key="img" style="width: 95%; height: auto;" v-for="img in imgs" />
-								<div key="buttons">
-									<button class="button small" v-bind:disabled="(nowPage < startPage || onTransition==1)" @click="navigate(-1)">上一页</button>
-									<button class="button small" v-bind:disabled="(nowPage >= endPage - 2 || onTransition==1)" @click="navigate(1)">下一页</button>
-								</div>
-								<hr key="br" />
-								<button @click="returnToContact" key="button" class="button fit" v-bind:disabled="onTransition==1">返回</button>
-							</transition-group>
-						</header>
 					</section>
 
 				<!-- Footer -->
-					<footer id="footer"></footer>
+				<footer id="footer"></footer>
 
 			</div>
 
@@ -309,169 +295,89 @@
 			<script>
 				if ('addEventListener' in window) {
 					window.addEventListener('load', function() { 
-						document.body.className = document.body.className.replace(/\bis-preload\b/, '');
+						document.body.className = document.body.className.replace(/\bis-preload\b/, ''); 
 					});
 					document.body.className += (navigator.userAgent.match(/(MSIE|rv:11\.0)/) ? ' is-ie' : '');
 				}
 			</script>
-		<!-- Vuejs -->
-			<script language="javascript">
+		<!-- Vue.js -->
+			<script>
 				var mainsec = new Vue({
 					el:'#main',
 					data:{
-						title:"", // The title of one page
-						html:"", // HTML text of one page
-						texts:[], // Pure texts of one page
-						imgs:[], // Image url of a page's images
-						
-						startPage: 1, // First page of the website
-						endPage: 3, // The last page of the website
-						
-						defaults: 1, // Show welcome message
-						Contacts:1, // Detect if to show contacts
-						info:0, // If to show designed pages
-						deg:0, // Main section rotate deg
+						defaults: 1,
 
-						backButton:false,
-
-						/*          Change things below this line               */
-						//Contact info
-						contacts:[
+						/*              Change things here             */
+						// Show when loaded
+						text:"<p>您可以使用微信/支付宝/QQ打开本页面，将会自动跳转到对应二维码<b style=\"color:red;\">不推荐使用<u>QQ钱包</u>付款</b>，<b style=\"color:#4ADEDE;\">推荐使用<u>支付宝</u></p>",
+						// Payments
+						method:[
+							{
+								name:"Alipay",
+								icon:"icon brands fa-alipay",
+								desc:"支付宝",
+								content:"<img src=\"images/demoQR.png\" class=\"qr\" /><br /><h2><a href=\"alipayqr://platformapi/startapp?saId=10000007&qrcode=null\"><u>支付宝[点击即可打开]</u></a></h2>",
+								show: false
+							},
 							{
 								name:"Wechat",
 								icon:"icon brands fa-weixin",
-								desc:"微信",
-								content:"<img src='images/demoQR.png' class='qr' />",
+								desc:"微信支付",
+								content:"<img src=\"images/demoQR.png\" class=\"qr\" /><br /><h2>微信</h2>",
 								show:false
 							},
 							{
 								name:"QQ",
 								icon:"icon brands fa-qq",
-								desc:"QQ",
-								content:"<img src='images/demoQR.png' class='qr' /><h2>QQ:XXXXXX</h2>",
-								show:false
-							},
-							{
-								name:"Github",
-								icon:"icon brands fa-github",
-								desc:"Github",
-								content:"<br /><a href='#' target='_blank'><img src='https://img.shields.io/badge/Github-Someone-brightgreen.svg' alt='Github' /></a><br /><a href=\"#\" target=\"_blank\">[Github](https://Github.com/Someone)</a>",
+								desc:"QQ钱包",
+								content:"<img src=\"images/demoQR.png\" class=\"qr\" /><br /><h2>QQ钱包</h2>",
 								show:false
 							}
 						],
+						/*           Change ends here               */
 
-						//Pages content
-						page:[
-							{
-								title:"Page 1",
-								texts:["Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore facere accusamus quae nesciunt at fuga dicta vitae quidem reiciendis. Quos blanditiis corporis vel iusto reprehenderit ratione distinctio fugiat quae sed."],
-								html:"",
-								imgs:["images/bg.jpg"]
-							},
-							{
-								title:"Page 2",
-								texts:["Some text","And some text"],
-								html:"<h2>HTML Support</h2>",
-								imgs:[""]
-							},
-							{
-								title:"Page 3",
-								texts:["Multi images"],
-								imgs:["images/bg.jpg","images/demoQR.png"],
-								html:""
-							},
-							{
-								title:"Page 4",
-								texts:["Another Demo"],
-								html:"<a onclick=\"todonate()\" style=\"color:#fff; background-color:#f0a1a8; border-radius: 0.3em; padding: 0.2em; cursor: pointer;\"><<u>Donate!</u>></a><br /><p style=\"color:#ccc; font-size:0.7em;\">Last updated: Apr. 14, 2021<p>",
-								imgs:[""]
-							},
-							{
-								title:"Eastern egg page!",
-								texts:["Can only access with ?page=#"],
-								html:"<a href='https://github.com/Jiaocz/Personal-page' target='_blank'>Origin project</a>"
-							}
-						],
-						/*            Change ends here                 */
-
-						nowPage:0, // Pointer to current page
-						onTransition:0 //If the transition animation is on
+						buttonShow:0,
+						backButton:0,
+						deg:0,
+						fromurl:"",
+						intpart:"",
+						doublepart:"",
+						showAmount:0
 					},
 					methods: {
-						showContact: function(name){
-							let num = 0
-							for(let i = 0; i < this.contacts.length; i++){
-								if(this.contacts[i].name == name){
-									num = i
-									break
+						showMethod: function(name){
+							this.defaults = 0
+							this.hideMethod(false)
+							let num = 0;
+							for(num = 0; num < this.method.length; num++){
+								if(this.method[num].name == name){
+									break;
 								}
 							}
-							
-							this.hideContact(false)
-							this.defaults = 0
 							clearTimeout(this.timer)
 							this.timer = setTimeout(()=>{
-								this.contacts[num].show = true
-								this.backButton = true
+								this.method[num].show = true
+								this.buttonShow = 1
 							},500)
 							
 						},
-						hideContact: function(neededDefault = true){
-							for(i = 0; i < this.contacts.length; i++){
-								this.contacts[i].show = false
+						hideMethod: function(neededDefault = true){
+							for(let i = 0; i < this.method.length; i++){
+								this.method[i].show = false
 							}
 							clearTimeout(this.timer)
 							if(neededDefault == true){
-								this.backButton = false
+								this.buttonShow = false
 								this.timer = setTimeout(()=>{
 									this.defaults = 1
 								},500)
 							}
-							
-						},
-						showAbout: function(){
-							this.rotateCard(-360,1,"Y")
-
-							var that = this
-							setTimeout(function(){
-								that.info = 1
-								that.Contacts = 0
-							},400)
-						},
-						returnToContact: function(){
-							this.rotateCard(360,1,"Y")
-							var that = this
-							setTimeout(function(){
-								that.info = 0
-								that.Contacts = 1
-							},400)
 						},
 						rotateCard: function(deg,time,axis){
-							this.onTransition = 1
 							this.deg += deg
 							var ele = document.getElementById('main')
-							ele.style.transition = "transform " + time + "s 0s"
+							ele.style.transition = "all " + time + "s 0s"
 							ele.style.transform = "rotate" + axis + "(" +this.deg + "deg)"
-							var that = this
-							setTimeout(function(){that.onTransition = 0},time*1000)
-						},
-						loadPage: function(){
-							this.title = this.page[this.nowPage].title
-							this.texts = this.page[this.nowPage].texts
-							this.html = this.page[this.nowPage].html
-							this.imgs = this.page[this.nowPage].imgs
-						},
-						navigate: function(m){
-							if(m==1){
-								this.nowPage++
-								this.rotateCard(-360,1,"Y")
-								setTimeout("mainsec.loadPage()",400)
-							}
-							if(m==-1){
-								this.nowPage--
-								this.rotateCard(+360,1,"Y")
-								setTimeout("mainsec.loadPage()",400)
-							}
 						},
 						screenShot: function(){
 							var button = document.getElementById("screenshot");
@@ -488,11 +394,6 @@
 								button.disabled = false;
 							});
 						}
-					},
-					mounted:function(){
-						this.loadPage()
-						this.startPage = 1
-						this.endPage = this.page.length
 					}
 				});
 			</script>
@@ -510,48 +411,37 @@
 					height: 80%;
 				}
 			</style>
-			<script>
-				let FirstTriggered = true;
-				function loaded(){
-					timeout = FirstTriggered ? 1200 : 0;
-					var page = getQueryVariable("page");
-					if(page>=mainsec.startPage-1&&page<=mainsec.endPage-1&&page){
-						var m = mainsec
-						mainsec.nowPage = page - 1;
-						setTimeout(function(){
-							m.rotateCard(-360,1,"Y")
-							setTimeout(function(){
-								m.loadPage()
-								m.info = 1
-								m.Contacts = 0
-							},400)
-						},timeout);
-					}
-					if(FirstTriggered){
-						$("body").on("dblclick","img",function(){window.open(this.src)});
-					}
-					if(getQueryVariable("showContacts")||getQueryVariable("showcontacts")){
-							var url;
-							var browser = navigator.userAgent.toLowerCase();
-							if(mainsec.info == 1){
-								mainsec.returnToContact()
-							}
-							if (browser.match(/MicroMessenger/i) == 'micromessenger') {
-								//微信浏览器
-								url = "https://u.wechat.com/EO3JtzoXctOZXiAG8tvYHuI";
-								setTimeout(function(){mainsec.showContact("Wechat")},1500);
-							} else if(browser.indexOf(' qq') != -1 && browser.indexOf('mqqbrowser') != -1){
-								//qq内置浏览器
-								url = "https://qm.qq.com/cgi-bin/qm/qr?k=OZm0covTGqrELIwI0XKV6LxlKsCcLIsm";
-								setTimeout(function(){mainsec.showContact("QQ")},1500);
-							}
-					}
-					
-					FirstTriggered = false
-				}
-			</script>
-			<script src="js/common.js"></script>
+
 	</body>
+	<script>
+		function loaded(){
+			var url;
+			var browser = navigator.userAgent.toLowerCase();
+			if (browser.match(/MicroMessenger/i) == 'micromessenger') {
+				//微信浏览器
+				setTimeout(function(){mainsec.showMethod("Wechat")},1500);
+			} else if(browser.indexOf(' qq') != -1 && browser.indexOf('mqqbrowser') != -1){
+				//qq内置浏览器
+				setTimeout(function(){mainsec.showMethod("QQ")},1500);
+			} else if(/AlipayClient/.test(window.navigator.userAgent)){
+				//支付宝浏览器
+				setTimeout(function(){mainsec.showMethod("Alipay")},1500);
+				url = "#"; // Your Alipay link
+			}
+			if(url){
+				setTimeout(function(){
+					window.location.href=url
+				},2500);
+			}
+			
+			if(getQueryVariable("amount")){
+				mainsec.showAmount = 1;
+				mainsec.intpart = getQueryVariable("amount").split('.')[0];
+				mainsec.doublepart = getQueryVariable("amount").split('.')[1];
+			}
+		}
+	</script>
+	<script src="js/common.js"></script>
 </html>
 
 

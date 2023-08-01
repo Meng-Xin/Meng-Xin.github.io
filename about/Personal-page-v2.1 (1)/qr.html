@@ -16,23 +16,19 @@
   <meta name="author" content="Meng-Xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Untitled 		 		 		 		 		 		 		 		 			img { 				border-radius: 10px; 			} 		 	  	  		 		 		 		   		    🍊 		    摇匀 		    再喝 		   		 		 		 			  				 					 						 						保存网页截图">
+    <meta name="description" content="Untitled 		 		 		 		 		 		 		 		 	 	 		 		 		 		 		   		    🍊 		    摇匀 		    再喝 		   		 		 		 			  				 					 						保存网页截图 						 							 							Untitled 						 						站内二维码生成 						 							选择页面">
 <meta property="og:type" content="website">
 <meta property="og:title" content="page.title">
-<meta property="og:url" content="http://yoursite.com/about/index.html">
+<meta property="og:url" content="http://yoursite.com/about/Personal-page-v2.1%20(1)/qr.html">
 <meta property="og:site_name" content="Gopher充电站">
-<meta property="og:description" content="Untitled 		 		 		 		 		 		 		 		 			img { 				border-radius: 10px; 			} 		 	  	  		 		 		 		   		    🍊 		    摇匀 		    再喝 		   		 		 		 			  				 					 						 						保存网页截图">
+<meta property="og:description" content="Untitled 		 		 		 		 		 		 		 		 	 	 		 		 		 		 		   		    🍊 		    摇匀 		    再喝 		   		 		 		 			  				 					 						保存网页截图 						 							 							Untitled 						 						站内二维码生成 						 							选择页面">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://yoursite.com/about/images/avatar.jpg">
-<meta property="og:image" content="http://yoursite.com/about/img">
-<meta property="og:image" content="http://yoursite.com/about/images/demoQR.png">
-<meta property="og:image" content="http://yoursite.com/about/images/demoQR.png">
-<meta property="og:image" content="https://img.shields.io/badge/Github-Someone-brightgreen.svg">
-<meta property="article:published_time" content="2023-07-31T15:00:32.294Z">
+<meta property="og:image" content="http://yoursite.com/about/Personal-page-v2.1%20(1)/images/avatar.jpg">
+<meta property="article:published_time" content="2023-07-31T14:59:09.990Z">
 <meta property="article:modified_time" content="2021-08-24T14:49:33.000Z">
 <meta property="article:author" content="Meng-Xin">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://yoursite.com/about/images/avatar.jpg">
+<meta name="twitter:image" content="http://yoursite.com/about/Personal-page-v2.1%20(1)/images/avatar.jpg">
   
   
   
@@ -232,18 +228,13 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		<script src="js/vue.min.js" language="JavaScript"></script>
+		<script src="js/vue.js" language="JavaScript"></script>
 		<script src="js/jquery-3.4.1.min.js"></script>
+		<script src="js/jquery.qrcode.min.js"></script>
 		<script src="js/html2canvas.min.js" async="async"></script>
-		<style>
-			img {
-				border-radius: 10px;
-			}
-		</style>
 	</head>
-
 	<body class="is-preload">
-
+		
 		<!-- Loader -->
 		<link rel="stylesheet" href="assets/css/loader.css" />
 		<div class="loader">
@@ -258,46 +249,40 @@
 			<div id="wrapper">
 
 				<!-- Main -->
-					<section id="main">
-						<!-- Screenshot Button -->
-						<span style="display: flex; position: fixed; top: 2em; right: 2em; opacity: 0.65; font-size: 0.8em;" v-show="backButton"><button class="button small" @click="screenShot" id="screenshot">保存网页截图</button></span>
-
-						<!-- Welcome Message and Contacts -->
-						<header v-show="Contacts">
+					<section id="main" style="width: 30em;">
+						<span style="display: flex; position: fixed; top: 2em; right: 2em; opacity: 0.65; font-size: 0.8em;"><button class="button small" @click="screenShot" id="screenshot">保存网页截图</button></span>
+						<header>
 							<span class="avatar"><img src="images/avatar.jpg" srcset="/img/loading.gif" lazyload alt="" style="width: 122px; height: 122px;" /></span>
 							<h1>Untitled</h1>
-							<transition-group name="fade">
-								<div v-show="defaults" key="text">
-									<p>Lorem</p>
-									<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore facere accusamus quae nesciunt at fuga dicta vitae quidem reiciendis. Quos blanditiis corporis vel iusto reprehenderit ratione distinctio fugiat quae sed.</p>
-									<button class="button small fit" @click="showAbout" v-bind:disabled="onTransition==1">Click!</button>
-								</div>
-								<div v-for="item in contacts" v-if="item.show" key="item.name" v-html="item.content"></div>
-								<button class="button small" key="button" @click="hideContact(true)" style="opacity: 0.55;" v-show="backButton">返回</button>
-							</transition-group>
 						</header>
+						<h1>站内二维码生成</h1>
+						<div>
+							<label style="font-size: 1em;">选择页面</label>
+							<input type="radio" id="pay" name="switchPage" v-model="method" value="pay"/><label for="pay">支付页面</label>
+							<input type="radio" id="index" name="switchPage" v-model="method" value="index"/><label for="index">关于页</label>
+							<input type="radio" id="donate" name="switchPage" v-model="method" value="donate"/><label for="donate">捐赠页</label>
+						</div>
+						<br />
+						<div class="fields" style="opacity: 0.6;">
+							<div id="paysection" v-if="(method == 'pay')">
+								<p><input type="text" id="amount" placeholder="金额" v-model="amount" v-on:input="genqr"/></p>
+								<p><input type="text" id="from" placeholder="FROM" v-model="FROM" v-on:input="genqr"/></p>
+							</div>
+							<div id="indexsection" v-if="(method == 'index')">
+								<input type="checkbox" id="showContacts" name="showContacts" v-model="showContacts" v-on:change="genqr"/><label for="showContacts">自动显示联系信息</label>
+								<input type="text" id="page" placeholder="PAGE" v-model="page" v-on:input="genqr"/>
+							</div>
+							<div id="donatesection" v-if="(method == 'donate')">
+								<input type="text" id="from" placeholder="FROM" v-model="FROM" v-on:input="genqr"/>
+							</div>
+							<br />
+						</div>
+						<center>
+							<div id="qr" style="display: none;"></div>
+							<div id="qrcontainer" style="text-align: center; background-color: #e5e5e5; border-radius: 0.5em; padding: 1em 1em 0.5em 1em; width: max-content;"><img id="qrimg" /></div>
+							<p style="text-transform: lowercase; text-align: center;"><span style="width: 20em; word-wrap: break-word;"></span></p>
+						</center>
 						<hr />
-						<footer v-show="Contacts">
-							<ul class="icons">
-								<li v-for="item in contacts"><a @click="showContact(item.name)" :class="item.icon"></a></li>
-							</ul>
-						</footer>
-
-						<!-- Page container -->
-						<header v-show="info">
-							<transition-group name="fade">
-								<h1 key="title"></h1>
-								<p key="text" v-for="text in texts"></p>
-								<div v-html="html" key="html"></div>
-								<img v-bind:src="img" srcset="/img/loading.gif" lazyload key="img" style="width: 95%; height: auto;" v-for="img in imgs" />
-								<div key="buttons">
-									<button class="button small" v-bind:disabled="(nowPage < startPage || onTransition==1)" @click="navigate(-1)">上一页</button>
-									<button class="button small" v-bind:disabled="(nowPage >= endPage - 2 || onTransition==1)" @click="navigate(1)">下一页</button>
-								</div>
-								<hr key="br" />
-								<button @click="returnToContact" key="button" class="button fit" v-bind:disabled="onTransition==1">返回</button>
-							</transition-group>
-						</header>
 					</section>
 
 				<!-- Footer -->
@@ -309,169 +294,68 @@
 			<script>
 				if ('addEventListener' in window) {
 					window.addEventListener('load', function() { 
-						document.body.className = document.body.className.replace(/\bis-preload\b/, '');
+						document.body.className = document.body.className.replace(/\bis-preload\b/, ''); 
 					});
 					document.body.className += (navigator.userAgent.match(/(MSIE|rv:11\.0)/) ? ' is-ie' : '');
 				}
 			</script>
-		<!-- Vuejs -->
-			<script language="javascript">
+		<!-- Vue.js -->
+			<script>
 				var mainsec = new Vue({
-					el:'#main',
+					el: "#main",
 					data:{
-						title:"", // The title of one page
-						html:"", // HTML text of one page
-						texts:[], // Pure texts of one page
-						imgs:[], // Image url of a page's images
-						
-						startPage: 1, // First page of the website
-						endPage: 3, // The last page of the website
-						
-						defaults: 1, // Show welcome message
-						Contacts:1, // Detect if to show contacts
-						info:0, // If to show designed pages
-						deg:0, // Main section rotate deg
-
-						backButton:false,
-
-						/*          Change things below this line               */
-						//Contact info
-						contacts:[
-							{
-								name:"Wechat",
-								icon:"icon brands fa-weixin",
-								desc:"微信",
-								content:"<img src='images/demoQR.png' class='qr' />",
-								show:false
-							},
-							{
-								name:"QQ",
-								icon:"icon brands fa-qq",
-								desc:"QQ",
-								content:"<img src='images/demoQR.png' class='qr' /><h2>QQ:XXXXXX</h2>",
-								show:false
-							},
-							{
-								name:"Github",
-								icon:"icon brands fa-github",
-								desc:"Github",
-								content:"<br /><a href='#' target='_blank'><img src='https://img.shields.io/badge/Github-Someone-brightgreen.svg' alt='Github' /></a><br /><a href=\"#\" target=\"_blank\">[Github](https://Github.com/Someone)</a>",
-								show:false
-							}
-						],
-
-						//Pages content
-						page:[
-							{
-								title:"Page 1",
-								texts:["Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore facere accusamus quae nesciunt at fuga dicta vitae quidem reiciendis. Quos blanditiis corporis vel iusto reprehenderit ratione distinctio fugiat quae sed."],
-								html:"",
-								imgs:["images/bg.jpg"]
-							},
-							{
-								title:"Page 2",
-								texts:["Some text","And some text"],
-								html:"<h2>HTML Support</h2>",
-								imgs:[""]
-							},
-							{
-								title:"Page 3",
-								texts:["Multi images"],
-								imgs:["images/bg.jpg","images/demoQR.png"],
-								html:""
-							},
-							{
-								title:"Page 4",
-								texts:["Another Demo"],
-								html:"<a onclick=\"todonate()\" style=\"color:#fff; background-color:#f0a1a8; border-radius: 0.3em; padding: 0.2em; cursor: pointer;\"><<u>Donate!</u>></a><br /><p style=\"color:#ccc; font-size:0.7em;\">Last updated: Apr. 14, 2021<p>",
-								imgs:[""]
-							},
-							{
-								title:"Eastern egg page!",
-								texts:["Can only access with ?page=#"],
-								html:"<a href='https://github.com/Jiaocz/Personal-page' target='_blank'>Origin project</a>"
-							}
-						],
-						/*            Change ends here                 */
-
-						nowPage:0, // Pointer to current page
-						onTransition:0 //If the transition animation is on
+						method:"pay", // Default shows
+						FROM:"",
+						amount:"",
+						showContacts:"",
+						page:"",
+						texts:""
 					},
-					methods: {
-						showContact: function(name){
-							let num = 0
-							for(let i = 0; i < this.contacts.length; i++){
-								if(this.contacts[i].name == name){
-									num = i
-									break
+					watch:{
+						method: function(){this.genqr()}
+					},
+					mounted:function(){
+						this.genqr()
+					},
+					methods:{
+						genqr: function(){
+							$("#qr").html("");
+							var texts = "https://example.com/"; // Base Link
+							if(this.method == "pay"){
+								texts = texts + "pay.html?";
+								if(this.amount){
+									texts = texts + "amount=" + this.amount +"&";
+								}
+								if(this.FROM){
+									texts = texts + "from=" + encodeURIComponent(this.FROM) +"&";
 								}
 							}
+							if(this.method == "index"){
+								texts = texts + "?";
+								if(this.page){
+									texts = texts + "page=" + this.page +"&";
+								}
+								if(this.showContacts){
+									texts = texts + "showContacts&";
+								}
+							}
+							if(this.method == "donate"){
+								texts = texts + "donate.html?";
+								if(this.FROM){
+									texts = texts + "from=" + encodeURIComponent(this.FROM) +"&";
+								}
+							}
+							texts = texts.substr(0,texts.length-1);
+							jQuery("#qr").qrcode({
+								render:"canvas",
+								text: texts,
+								background: "#e5e5e5",
+								foreground: "#514d59"
+							});
+							this.texts = texts;
+							var canvas = document.getElementsByTagName('canvas')[0].toDataURL('image/jpg');
+							document.getElementById("qrimg").src = canvas;
 							
-							this.hideContact(false)
-							this.defaults = 0
-							clearTimeout(this.timer)
-							this.timer = setTimeout(()=>{
-								this.contacts[num].show = true
-								this.backButton = true
-							},500)
-							
-						},
-						hideContact: function(neededDefault = true){
-							for(i = 0; i < this.contacts.length; i++){
-								this.contacts[i].show = false
-							}
-							clearTimeout(this.timer)
-							if(neededDefault == true){
-								this.backButton = false
-								this.timer = setTimeout(()=>{
-									this.defaults = 1
-								},500)
-							}
-							
-						},
-						showAbout: function(){
-							this.rotateCard(-360,1,"Y")
-
-							var that = this
-							setTimeout(function(){
-								that.info = 1
-								that.Contacts = 0
-							},400)
-						},
-						returnToContact: function(){
-							this.rotateCard(360,1,"Y")
-							var that = this
-							setTimeout(function(){
-								that.info = 0
-								that.Contacts = 1
-							},400)
-						},
-						rotateCard: function(deg,time,axis){
-							this.onTransition = 1
-							this.deg += deg
-							var ele = document.getElementById('main')
-							ele.style.transition = "transform " + time + "s 0s"
-							ele.style.transform = "rotate" + axis + "(" +this.deg + "deg)"
-							var that = this
-							setTimeout(function(){that.onTransition = 0},time*1000)
-						},
-						loadPage: function(){
-							this.title = this.page[this.nowPage].title
-							this.texts = this.page[this.nowPage].texts
-							this.html = this.page[this.nowPage].html
-							this.imgs = this.page[this.nowPage].imgs
-						},
-						navigate: function(m){
-							if(m==1){
-								this.nowPage++
-								this.rotateCard(-360,1,"Y")
-								setTimeout("mainsec.loadPage()",400)
-							}
-							if(m==-1){
-								this.nowPage--
-								this.rotateCard(+360,1,"Y")
-								setTimeout("mainsec.loadPage()",400)
-							}
 						},
 						screenShot: function(){
 							var button = document.getElementById("screenshot");
@@ -489,68 +373,9 @@
 							});
 						}
 					},
-					mounted:function(){
-						this.loadPage()
-						this.startPage = 1
-						this.endPage = this.page.length
-					}
 				});
 			</script>
-			<style>
-				.fade-enter-active, .fade-leave-active {
-					transition: all .5s;
-				}
-				.fade-enter, .fade-leave-to {
-					opacity: 0;
-					transform: scale(0%,0%);
-				}
-				.qr {
-					text-align: center;
-					width: 80%;
-					height: 80%;
-				}
-			</style>
-			<script>
-				let FirstTriggered = true;
-				function loaded(){
-					timeout = FirstTriggered ? 1200 : 0;
-					var page = getQueryVariable("page");
-					if(page>=mainsec.startPage-1&&page<=mainsec.endPage-1&&page){
-						var m = mainsec
-						mainsec.nowPage = page - 1;
-						setTimeout(function(){
-							m.rotateCard(-360,1,"Y")
-							setTimeout(function(){
-								m.loadPage()
-								m.info = 1
-								m.Contacts = 0
-							},400)
-						},timeout);
-					}
-					if(FirstTriggered){
-						$("body").on("dblclick","img",function(){window.open(this.src)});
-					}
-					if(getQueryVariable("showContacts")||getQueryVariable("showcontacts")){
-							var url;
-							var browser = navigator.userAgent.toLowerCase();
-							if(mainsec.info == 1){
-								mainsec.returnToContact()
-							}
-							if (browser.match(/MicroMessenger/i) == 'micromessenger') {
-								//微信浏览器
-								url = "https://u.wechat.com/EO3JtzoXctOZXiAG8tvYHuI";
-								setTimeout(function(){mainsec.showContact("Wechat")},1500);
-							} else if(browser.indexOf(' qq') != -1 && browser.indexOf('mqqbrowser') != -1){
-								//qq内置浏览器
-								url = "https://qm.qq.com/cgi-bin/qm/qr?k=OZm0covTGqrELIwI0XKV6LxlKsCcLIsm";
-								setTimeout(function(){mainsec.showContact("QQ")},1500);
-							}
-					}
-					
-					FirstTriggered = false
-				}
-			</script>
-			<script src="js/common.js"></script>
+
 	</body>
 </html>
 
